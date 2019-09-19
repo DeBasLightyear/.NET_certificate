@@ -13,6 +13,21 @@ namespace C__certificate_training
     
     class Program
     {
+        private Person [] peepz = new Person [] {
+                new Person { Name = "Alan", City = "Hull" },
+                new Person { Name = "Beryl", City = "Seattle" },
+                new Person { Name = "Charles", City = "London" },
+                new Person { Name = "David", City = "Seattle" },
+                new Person { Name = "Eddy", City = "Paris" },
+                new Person { Name = "Fred", City = "Berlin" },
+                new Person { Name = "Gordon", City = "Hull" },
+                new Person { Name = "Henry", City = "Seattle" },
+                new Person { Name = "Isaac", City = "Seattle" },
+                new Person { Name = "James", City = "Seattle" },
+                new Person { Name = "James", City = "London" },
+                new Person { Name = "Murder Manfred" },
+            };
+
         static void Task1()
         {
             Console.WriteLine("Task 1 starging");
@@ -32,6 +47,40 @@ namespace C__certificate_training
             Console.WriteLine("Started working on: " + item);
             Thread.Sleep(100);
             Console.WriteLine("Finished working on: " + item);
+        }
+
+        public static void DoWork()
+        {
+            Console.WriteLine("Work starting");
+            Thread.Sleep(2000);
+            Console.WriteLine("Work finished.");
+        }
+
+        public static int CalculateResult()
+        {
+            Console.WriteLine("Work starting");
+            Thread.Sleep(2000);
+            Console.WriteLine("All done");
+            return 99;
+        }
+
+        public static void DoMoreWork(int taskNumber)
+        {
+            Console.WriteLine($"Task {taskNumber} starting");
+            Thread.Sleep(2000);
+            Console.WriteLine($"Task {taskNumber} finished");
+        }
+
+        public static void FooTask()
+        {
+            Thread.Sleep(1000);
+            Console.WriteLine("Foo");
+        }
+
+        public static void BarTask()
+        {
+            Thread.Sleep(1000);
+            Console.WriteLine("Bar");
         }
 
         static void Main(string[] args)
@@ -72,20 +121,6 @@ namespace C__certificate_training
             // Console.WriteLine("All done. Going to take a nap now.");
 
             // 1-5 / 1-6 / 1-7
-            Person [] peepz = new Person [] {
-                new Person { Name = "Alan", City = "Hull" },
-                new Person { Name = "Beryl", City = "Seattle" },
-                new Person { Name = "Charles", City = "London" },
-                new Person { Name = "David", City = "Seattle" },
-                new Person { Name = "Eddy", City = "Paris" },
-                new Person { Name = "Fred", City = "Berlin" },
-                new Person { Name = "Gordon", City = "Hull" },
-                new Person { Name = "Henry", City = "Seattle" },
-                new Person { Name = "Isaac", City = "Seattle" },
-                new Person { Name = "James", City = "Seattle" },
-                new Person { Name = "James", City = "London" },
-            };
-
             // var result = from person in peepz.AsParallel()
             //                                  .AsOrdered()   // Reorder to original order after execution. Impacts performance.
             //                                  .WithDegreeOfParallelism(4)    // Max 4 CPUs
@@ -100,19 +135,70 @@ namespace C__certificate_training
             // Console.WriteLine("All done.");
 
             // 1-8
-            var result = (from person in peepz.AsParallel()
-                                where person.City == "Seattle"
-                                orderby (person.Name)   // Order the result
-                                select new
-                                {
-                                    Name = person.Name
-                                }).AsSequential().Take(4); // Keep the order and take the first 4
-            GCNotificationStatus
-            foreach(var person in result)
-            {
-                Console.WriteLine(person.Name);
-            }
-            Console.WriteLine("All done.");
+            // var result = (from person in peepz.AsParallel()
+            //                     where person.City == "Seattle"
+            //                     orderby (person.Name)   // Order the result
+            //                     select new
+            //                     {
+            //                         Name = person.Name
+            //                     }).AsSequential().Take(4); // Keep the order and take the first 4
+
+            // foreach(var person in result)
+            // {
+            //     Console.WriteLine(person.Name);
+            // }
+            // Console.WriteLine("All done.");
+
+            // 1-9 PLINQ
+            // var result = from person in peepz.AsParallel()
+            //              where person.City == "Seattle"
+            //              select person;
+            // result.ForAll(person => Console.WriteLine(person.Name));
+
+            // 1-10 Exceptions in PLINQ
+            // try
+            // {
+            //     var result = from person in peepz.AsParallel()
+            //                  where person.City == "Seattle"
+            //                  select person;
+            //     result.ForAll(person => Console.WriteLine(person.Name));
+            // }
+            // catch (AggregateException e)
+            // {
+            //     Console.WriteLine(e.InnerExceptions.Count + " exceptions");
+            // }
+
+            // 1-11 Create a task (corrected)
+            // Task newTask = new Task(DoWork);
+            // newTask.Start();
+            // newTask.Wait();
+
+            // 1-12 Run a task
+            // Task newTask = Task.Run(() => DoWork()); // Apparently, you need the stupid layer of lambda here
+            // newTask.Wait();
+
+            // 1-13 Task returning a value (corrected)
+            // Task<int> task = Task.Run(() => CalculateResult());
+            // Console.WriteLine(task.Result);
+
+            // 1-14 Await all
+            // Task[] Tasks = new Task[10];
+            // var numberSeries = Enumerable.Range(0, 10);
+            // foreach(int number in numberSeries)
+            // {
+            //     Tasks[number] = Task.Run(() => DoMoreWork(number));
+            // }
+            // Task.WaitAll(Tasks);
+
+            // 1-15 Continuation
+            // Task task = Task.Run(() => FooTask());
+            // task.ContinueWith((prevTask) => BarTask());
+            // Console.ReadKey();
+
+            // 1-16 Continuation options
+            Task task = Task.Run(() => FooTask());
+            task.ContinueWith((prevTask) => BarTask(), TaskContinuationOptions.OnlyOnRanToCompletion);
+            Console.ReadKey();
         }
     }
 }
