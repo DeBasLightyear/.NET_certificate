@@ -83,6 +83,31 @@ namespace C__certificate_training
             Console.WriteLine("Bar");
         }
 
+        public static void DoChild(object state)
+        {
+            Console.WriteLine($"Child {state} starting");
+            Thread.Sleep(2000);
+            Console.WriteLine($"Child {state} finished");
+        }
+
+        public static void ThreadHello()
+        {
+            Console.WriteLine("Hello from the thread");
+            Thread.Sleep(2000);
+        }
+
+        public static void WorkOnData(object data)
+        {
+            Console.WriteLine($"Working on {data}");
+            Thread.Sleep(1000);
+        }
+
+        public static void DisplayThread(Thread t)
+        {
+            Console.WriteLine($"Name: {t.Name}");
+            Console.WriteLine($"Culture: {t.}");
+        }
+
         static void Main(string[] args)
         {
             // 1-1 (corrected)
@@ -196,9 +221,145 @@ namespace C__certificate_training
             // Console.ReadKey();
 
             // 1-16 Continuation options
-            Task task = Task.Run(() => FooTask());
-            task.ContinueWith((prevTask) => BarTask(), TaskContinuationOptions.OnlyOnRanToCompletion);
-            Console.ReadKey();
+            // Task task = Task.Run(() => FooTask());
+            // task.ContinueWith((prevTask) => BarTask(), TaskContinuationOptions.OnlyOnRanToCompletion);
+            // Console.ReadKey();
+
+            // 1-17 Attached child task
+            // var parentTask = Task.Factory.StartNew(() => {
+            //     Console.WriteLine("Parent starts.");
+
+            //     var range = Enumerable.Range(0, 10);
+            //     foreach(int number in range)
+            //     {
+            //         Task.Factory.StartNew(
+            //             (item) => DoChild(item),
+            //             number,
+            //             TaskCreationOptions.AttachedToParent);
+            //     }
+            // });
+
+            // parentTask.Wait();
+            // Console.WriteLine("Parent finished.");
+
+            // 1-18 Creating threads
+            // Thread newThread = new Thread(ThreadHello);
+            // newThread.Start();
+
+            // 1-19 Using ThreadStart
+            // ThreadStart ts = new ThreadStart(ThreadHello);
+            // Thread newThread = new Thread(ts);
+            // newThread.Start();
+
+            // 1-20 Threads and lambda expressions
+            // Thread newThread = new Thread(() => 
+            // {
+            //     Console.WriteLine("Hello from the lambda thread");
+            //     Thread.Sleep(2000);
+            // });
+            // newThread.Start();
+
+            // 1-21 ParametrizedThreadStart
+            // ParameterizedThreadStart ps = new ParameterizedThreadStart(WorkOnData);
+            // Thread thread = new Thread(ps);
+            // thread.Start("Wololo");
+
+            // 1-22 Thread with lambda parameter
+            // Thread newThread = new Thread((data) =>
+            // {
+            //     Console.WriteLine($"Working on {data}");
+            //     Thread.Sleep(1000);
+            // });
+            // newThread.Start("Foobar");
+
+            // 1-23 Aborting a thread
+            // Thread tickTock = new Thread(() =>
+            // {
+            //     while(true)
+            //     {
+            //         Console.WriteLine("Tick");
+            //         Thread.Sleep(1000);
+            //         Console.WriteLine("Tock");
+            //         Thread.Sleep(1000);
+            //     }
+            // });
+            // tickTock.Start();
+
+            // Console.WriteLine("Press a key to stop the thread");
+            // Console.ReadKey();
+            // tickTock.Abort();
+            // Console.WriteLine("Killed it...");
+
+            // 1-24 Aborting using a shared flag variable
+            // bool tickTockRunning = true;
+
+            // Thread tickTock = new Thread(() =>
+            // {
+            //     while(tickTockRunning)
+            //     {
+            //         Console.WriteLine("Tick");
+            //         Thread.Sleep(1000);
+            //         Console.WriteLine("Tock");
+            //         Thread.Sleep(1000);
+            //     }
+            // });
+            // tickTock.Start();
+
+            // Console.WriteLine("Press a key to stop the thread");
+            // Console.ReadKey();
+            // tickTockRunning = false;
+            // Console.WriteLine("Killing it...");
+
+            // 1-25 Using join
+            // Thread threadToWaitFor = new Thread(() =>
+            // {
+            //     Console.WriteLine("Thread starting");
+            //     Thread.Sleep(2000);
+            //     Console.WriteLine("Thread done");
+            // });
+            // threadToWaitFor.Start();
+            // Console.WriteLine("Joining thread");
+            // threadToWaitFor.Join(); // What am I joining it with. Seems useless...
+            // Console.WriteLine("Press a key to exit");
+            // Console.ReadKey();
+
+            // 1-26 ThreadLocal
+            // ThreadLocal<Random> RandomGenerator =
+            // new ThreadLocal<Random>(() =>
+            // {
+            //     return new Random(2);
+            // });
+
+            // Thread t1 = new Thread(() =>
+            // {
+            //     var range = Enumerable.Range(0, 5);
+
+            //     foreach(int nr in range)
+            //     {
+            //         int randomNumber = RandomGenerator.Value.Next(10);
+            //         Console.WriteLine($"T1: {randomNumber}");
+            //         Thread.Sleep(500);
+            //     }
+            // });
+
+            // Thread t2 = new Thread(() =>
+            // {
+            //     var range = Enumerable.Range(0, 5);
+                
+            //     foreach(int nr in range)
+            //     {
+            //         int randomNumber = RandomGenerator.Value.Next(10);
+            //         Console.WriteLine($"T2: {randomNumber}");
+            //         Thread.Sleep(500);
+            //     }
+            // });
+
+            // t1.Start();
+            // t2.Start();
+            // Console.ReadKey();
+
+            // 1-27 Thread context
+
         }
     }
 }
