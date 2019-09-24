@@ -2,6 +2,9 @@
 using System.Threading.Tasks;
 using System.Threading;
 using System.Linq;
+using System.Net.Http;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace C__certificate_training
 {
@@ -105,7 +108,17 @@ namespace C__certificate_training
         public static void DisplayThread(Thread t)
         {
             Console.WriteLine($"Name: {t.Name}");
-            Console.WriteLine($"Culture: {t.}");
+            Console.WriteLine($"Culture: {t.CurrentCulture}");
+            Console.WriteLine($"Priority: {t.Priority}");
+            Console.WriteLine($"Context: {t.ExecutionContext}");
+            Console.WriteLine($"Is background: {t.IsBackground}");
+            Console.WriteLine($"Is pool: {t.IsThreadPoolThread}");
+        }
+
+        public static async Task<string> FetchWebPage(string url)
+        {
+            HttpClient httpClient = new HttpClient();
+            return await httpClient.GetStringAsync(url);
         }
 
         static void Main(string[] args)
@@ -359,7 +372,83 @@ namespace C__certificate_training
             // Console.ReadKey();
 
             // 1-27 Thread context
+            // Thread.CurrentThread.Name = "Main method";
+            // DisplayThread(Thread.CurrentThread);
 
+            // 1-28 Thread pool
+            // Action<object> doWork = (object state) =>
+            // {
+            //     Console.WriteLine($"Wololo: {state}");
+            // };
+
+            // var range = Enumerable.Range(0, 50);
+            // foreach(int stateNr in range)
+            // {
+            //     ThreadPool.QueueUserWorkItem(state => doWork(stateNr));
+            // }
+            // Console.ReadKey();
+
+            // 1-34 Awaiting parallel tasks (modified for console application)
+            // Func<string [], Task<IEnumerable<string>>> fetchWebPages = async (string [] urls) =>
+            // {
+            //     var tasks = new List<Task<string>>();
+
+            //     foreach(string url in urls)
+            //     {
+            //         Task<string> newTask = FetchWebPage(url);
+            //         tasks.Add(newTask);
+            //     }
+
+            //     return await Task.WhenAll(tasks);   // Wait until all tasks are completed
+            // };
+            
+            // var webPages = new string[] {
+            //     "https://tweakers.net/",
+            //     "https://www.nu.nl/"
+            // };
+            // var results = fetchWebPages(webPages).Result;
+
+            // foreach(string result in results)
+            // {
+            //     Console.WriteLine(result);
+            // }
+
+            // 1-35/36 Using BlockingCollection
+            
+            // A collection that can only hold 5 items.
+            BlockingCollection<int> data = new BlockingCollection<int>(new ConcurrentStack<int>(), 5);
+
+            Task.Run(() =>
+            {
+                // Attempt to add 10 items to the collection. Blocks after the 5th.
+                var range = Enumerable.Range(0, 10);
+
+                foreach(int nr in range)
+                {
+                    data.Add(nr);
+                    Console.WriteLine($"Data {nr} has been added to collection.");
+                }
+                // When all 10 are added, indicate there is nothing more to add
+                data.CompleteAdding();
+            });
+
+            Console.ReadKey();
+            Console.WriteLine("Reading collection");
+
+            Task.Run(() =>
+            {
+                // Try to take as long as CompleteAdding hasn't been called
+                while (!data.IsCompleted)
+                {
+                    try
+                    {
+                        int v = data.Take();
+                        Console.WriteLine($"Data {v} has been taken from collection.");
+                    }
+                    catch (InvalidOperationException) {}
+                }
+            });
+            Console.ReadKey();
         }
     }
 }
