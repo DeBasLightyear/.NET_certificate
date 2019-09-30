@@ -414,41 +414,86 @@ namespace C__certificate_training
             // }
 
             // 1-35/36 Using BlockingCollection
-            
             // A collection that can only hold 5 items.
-            BlockingCollection<int> data = new BlockingCollection<int>(new ConcurrentStack<int>(), 5);
+            // BlockingCollection<int> data = new BlockingCollection<int>(new ConcurrentStack<int>(), 5);
 
-            Task.Run(() =>
+            // Task.Run(() =>
+            // {
+            //     // Attempt to add 10 items to the collection. Blocks after the 5th.
+            //     var range = Enumerable.Range(0, 10);
+
+            //     foreach(int nr in range)
+            //     {
+            //         data.Add(nr);
+            //         Console.WriteLine($"Data {nr} has been added to collection.");
+            //     }
+            //     // When all 10 are added, indicate there is nothing more to add
+            //     data.CompleteAdding();
+            // });
+
+            // Console.ReadKey();
+            // Console.WriteLine("Reading collection");
+
+            // Task.Run(() =>
+            // {
+            //     // Try to take as long as CompleteAdding hasn't been called
+            //     while (!data.IsCompleted)
+            //     {
+            //         try
+            //         {
+            //             int v = data.Take();
+            //             Console.WriteLine($"Data {v} has been taken from collection.");
+            //         }
+            //         catch (InvalidOperationException) {}
+            //     }
+            // });
+            // Console.ReadKey();
+
+            // 1-37 Concurrent queue
+            // ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
+            // queue.Enqueue("Rob");
+            // queue.Enqueue("Miles");
+            // string str;
+
+            // if (queue.TryPeek(out str))
+            // {
+            //     Console.WriteLine($"Peek: {str}");
+            // }
+            // if (queue.TryDequeue(out str))
+            // {
+            //     Console.WriteLine($"Peek: {str}");
+            // }
+
+            // 1-37 Concurrent stack
+            // ConcurrentStack<string> queue = new ConcurrentStack<string>();
+            // queue.Push("Rob");
+            // queue.Push("Miles");
+            // string str;
+
+            // if (queue.TryPeek(out str))
+            // {
+            //     Console.WriteLine($"Peek: {str}");
+            // }
+            // if (queue.TryPop(out str))
+            // {
+            //     Console.WriteLine($"Pop: {str}");
+            // }
+
+            // 1-38 Concurrent bag
+            ConcurrentBag<string> bag = new ConcurrentBag<string>();
+            bag.Add("Rob");
+            bag.Add("Miles");
+            bag.Add("Hull");
+            string str;
+
+            if (bag.TryPeek(out str))
             {
-                // Attempt to add 10 items to the collection. Blocks after the 5th.
-                var range = Enumerable.Range(0, 10);
-
-                foreach(int nr in range)
-                {
-                    data.Add(nr);
-                    Console.WriteLine($"Data {nr} has been added to collection.");
-                }
-                // When all 10 are added, indicate there is nothing more to add
-                data.CompleteAdding();
-            });
-
-            Console.ReadKey();
-            Console.WriteLine("Reading collection");
-
-            Task.Run(() =>
+                Console.WriteLine($"peek: {str}");
+            }
+            if (bag.TryTake(out str))
             {
-                // Try to take as long as CompleteAdding hasn't been called
-                while (!data.IsCompleted)
-                {
-                    try
-                    {
-                        int v = data.Take();
-                        Console.WriteLine($"Data {v} has been taken from collection.");
-                    }
-                    catch (InvalidOperationException) {}
-                }
-            });
-            Console.ReadKey();
+                Console.WriteLine($"Take: {str}");
+            }
         }
     }
 }
