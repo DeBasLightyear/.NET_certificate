@@ -121,6 +121,32 @@ namespace C__certificate_training
             return await httpClient.GetStringAsync(url);
         }
 
+        public static List<int[]> sliceArray(List<int> toSlice, int sliceSize)  // Omnisharp kep bitching about types when I tried to make the toSlice array type agnostic :(
+        {
+            List<int[]> slices = new List<int[]>();
+            var toSliceArray = toSlice.ToArray();
+            int slicesAmount = (toSlice.Count() / sliceSize) + 1;
+
+            for (int i = 0; i < slicesAmount; i++)
+            {
+                int sliceEnd = (i + 1) * sliceSize;
+                int sliceStart = sliceEnd - sliceSize;
+                
+                try
+                {
+                    var newSlice = toSliceArray[sliceStart..sliceEnd];
+                    slices.Add(newSlice);
+                }
+                catch (System.ArgumentOutOfRangeException)
+                {
+                    sliceEnd = toSliceArray.Count();
+                    var newSlice =  toSliceArray[sliceStart..sliceEnd];
+                    slices.Add(newSlice);
+                }
+            }
+            return slices;
+        }
+
         static void Main(string[] args)
         {
             // 1-1 (corrected)
@@ -480,20 +506,84 @@ namespace C__certificate_training
             // }
 
             // 1-38 Concurrent bag
-            ConcurrentBag<string> bag = new ConcurrentBag<string>();
-            bag.Add("Rob");
-            bag.Add("Miles");
-            bag.Add("Hull");
-            string str;
+            // ConcurrentBag<string> bag = new ConcurrentBag<string>();
+            // bag.Add("Rob");
+            // bag.Add("Miles");
+            // bag.Add("Hull");
+            // string str;
 
-            if (bag.TryPeek(out str))
+            // if (bag.TryPeek(out str))
+            // {
+            //     Console.WriteLine($"peek: {str}");
+            // }
+            // if (bag.TryTake(out str))
+            // {
+            //     Console.WriteLine($"Take: {str}");
+            // }
+
+            // 1-40 Concurrent dictionary
+            // Adding Rob to dictionary
+            // ConcurrentDictionary<string, int> ages = new ConcurrentDictionary<string, int>();
+            // if (ages.TryAdd("Rob", 21)) Console.WriteLine("Rob added succesfully.");
+            // Console.WriteLine("Rob's age is {0}", ages["Rob"]);
+
+            // // Set age to 22 if age is 21
+            // if (ages.TryUpdate("Rob", 22, 21))  Console.WriteLine("Age updated succesfully");
+            // Console.WriteLine("Rob's new age is {0}", ages["Rob"]);
+
+            // // Increment age atomically using factory methode
+            // Console.WriteLine(  "Rob's age udpated to {0}",
+            //                     ages.AddOrUpdate("Rob", 1, (name, age) => age += 1));   // Set age to 1 if Rob doesn't exist yet
+            // Console.WriteLine("Rob's new age is {0}", ages["Rob"]);
+
+            // 1-41 Single task summing
+            // int[] items = Enumerable.Range(0, 50000001).ToArray();
+
+            // long total = 0;
+
+            // foreach(int item in items)
+            // {
+            //     total += item;
+            // }
+            // Console.WriteLine($"Total is {total}");
+
+            // 1-42 Bad task interaction - lost train of thought, the nex day. Not very important though
+            // List<int> items = Enumerable.Range(0, 50000002).ToList();
+            
+            // int rangeSize = 1000;
+            // List<int[]> itemsSliced = sliceArray(items, rangeSize);
+            
+            // List<Task> tasks = new List<Task>();
+            // long sharedTotal = 0;
+
+            // Action<int, int> addRangeOfValues = (int start, int end) =>
+            // {
+            //     while (start < end)
+            //     {
+            //         sharedTotal += items[start];
+            //     }
+            // };
+
+            // 1-44 Using locking (43 was useless)
+            List<int> bigRange = Enumerable.Range(0, 50000001).ToList();
+            int smallRangeSize = 1000;
+
+            var smallRanges = sliceArray(bigRange, smallRangeSize);
+
+            long sharedTotal = 0;
+            object sharedTotalLock = new object();
+
+            Func<List<int>, long> addRangeOfValues = (List<int> range) =>
             {
-                Console.WriteLine($"peek: {str}");
-            }
-            if (bag.TryTake(out str))
-            {
-                Console.WriteLine($"Take: {str}");
-            }
+                long subTotal = range.Aggregate((acc, x) => acc + x);
+                return subTotal;
+            };
+
+            List<Task> tasks = new List<Task>();
+            
+            int 
+
+
         }
     }
 }
