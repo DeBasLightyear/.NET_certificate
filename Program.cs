@@ -565,25 +565,38 @@ namespace C__certificate_training
             // };
 
             // 1-44 Using locking (43 was useless)
-            List<int> bigRange = Enumerable.Range(0, 50000001).ToList();
-            int smallRangeSize = 1000;
+            // List<int> bigRange = Enumerable.Range(0, 50000001).ToList();
+            // int smallRangeSize = 1000;
 
-            var smallRanges = sliceArray(bigRange, smallRangeSize);
+            // var smallRanges = sliceArray(bigRange, smallRangeSize);
 
+            // long sharedTotal = 0;
+            // object sharedTotalLock = new object();
+
+            // Func<List<int>, long> addRangeOfValues = (List<int> range) =>
+            // {
+            //     long subTotal = range.Aggregate((acc, x) => acc + x);
+            //     return subTotal;
+            // };
+
+            // List<Task> tasks = new List<Task>();
+
+            // 1-48: Interlock total
+            List<int> items = Enumerable.Range(0, 50000).ToList();
             long sharedTotal = 0;
-            object sharedTotalLock = new object();
 
-            Func<List<int>, long> addRangeOfValues = (List<int> range) =>
+            Action<int, int> addRangeOfValues = (int start, int end) =>
             {
-                long subTotal = range.Aggregate((acc, x) => acc + x);
-                return subTotal;
+                long subTotal = 0;
+
+                while (start < end)
+                {
+                    subTotal += items[start];
+                    start++;
+                }
+
+                Interlocked.Add(ref sharedTotal, subTotal);
             };
-
-            List<Task> tasks = new List<Task>();
-            
-            int 
-
-
         }
     }
 }
